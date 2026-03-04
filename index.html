@@ -358,7 +358,6 @@
             z-index: 100;
         }
 
-        /* Desktop optimizations */
         @media (min-width: 769px) {
             h1 { font-size: 3em; }
             .container { padding: 20px; }
@@ -388,7 +387,6 @@
             .countdown { font-size: 1.5em; }
         }
 
-        /* Small phones */
         @media (max-width: 360px) {
             h1 { font-size: 1.5em; }
             .prizes h2 { font-size: 1.1em; }
@@ -402,8 +400,6 @@
 </head>
 <body>
     <canvas id="fireworks-canvas"></canvas>
-    
-    <!-- Sync Status Indicator -->
     <div class="sync-status" id="syncStatus">💾 Local Mode</div>
     
     <div class="container" id="homePage">
@@ -453,469 +449,147 @@
     </div>
 
     <script>
-        // ===== CONFIGURATION =====
-        // IMPORTANT: Replace these with YOUR JSONBin credentials
-        const JSONBIN_BIN_ID = '69a7d21d43b1c97be9b1ad3b';  // Example: '67a1b2c3d4e5f6g7h8i9'
-        const JSONBIN_API_KEY = '$2a$10$WU.cI7Kb04JDa81lP2Cw4eQMPtPYN3rHVV6fw5bTubm3XdhJVpcxC';  // Example: '$2a$10$xxxxx...'
-        
+        const JSONBIN_BIN_ID = '69a7d21d43b1c97be9b1ad3b';
+        const JSONBIN_API_KEY = '$2a$10$WU.cI7Kb04JDa81lP2Cw4eQMPtPYN3rHVV6fw5bTubm3XdhJVpcxC';
         const API_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
 
-        // Initialize fireworks
         const canvas = document.getElementById('fireworks-canvas');
         const ctx = canvas.getContext('2d');
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        });
+        window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
 
         class Particle {
-            constructor(x, y, color) {
-                this.x = x;
-                this.y = y;
-                this.color = color;
-                this.velocity = {
-                    x: (Math.random() - 0.5) * 8,
-                    y: (Math.random() - 0.5) * 8
-                };
-                this.alpha = 1;
-                this.decay = Math.random() * 0.02 + 0.01;
-            }
-
-            draw() {
-                ctx.save();
-                ctx.globalAlpha = this.alpha;
-                ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.restore();
-            }
-
-            update() {
-                this.velocity.y += 0.1;
-                this.x += this.velocity.x;
-                this.y += this.velocity.y;
-                this.alpha -= this.decay;
-            }
+            constructor(x, y, color) { this.x = x; this.y = y; this.color = color; this.velocity = { x: (Math.random() - 0.5) * 8, y: (Math.random() - 0.5) * 8 }; this.alpha = 1; this.decay = Math.random() * 0.02 + 0.01; }
+            draw() { ctx.save(); ctx.globalAlpha = this.alpha; ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x, this.y, 3, 0, Math.PI * 2); ctx.fill(); ctx.restore(); }
+            update() { this.velocity.y += 0.1; this.x += this.velocity.x; this.y += this.velocity.y; this.alpha -= this.decay; }
         }
 
         let particles = [];
-
-        function createFirework(x, y) {
-            const colors = ['#ffd700', '#ff6b6b', '#4ecdc4', '#45b7d1', '#f7b731', '#5f27cd', '#00d2d3'];
-            for (let i = 0; i < 50; i++) {
-                particles.push(new Particle(x, y, colors[Math.floor(Math.random() * colors.length)]));
-            }
-        }
-
-        function animate() {
-            ctx.fillStyle = 'rgba(10, 14, 39, 0.1)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            particles = particles.filter(particle => particle.alpha > 0);
-
-            particles.forEach(particle => {
-                particle.update();
-                particle.draw();
-            });
-
-            requestAnimationFrame(animate);
-        }
-
-        function triggerFireworksBlast() {
-            for (let i = 0; i < 5; i++) {
-                setTimeout(() => {
-                    createFirework(
-                        Math.random() * canvas.width,
-                        Math.random() * canvas.height * 0.5
-                    );
-                }, i * 200);
-            }
-        }
-
+        function createFirework(x, y) { const colors = ['#ffd700', '#ff6b6b', '#4ecdc4', '#45b7d1', '#f7b731', '#5f27cd', '#00d2d3']; for (let i = 0; i < 50; i++) particles.push(new Particle(x, y, colors[Math.floor(Math.random() * colors.length)])); }
+        function animate() { ctx.fillStyle = 'rgba(10, 14, 39, 0.1)'; ctx.fillRect(0, 0, canvas.width, canvas.height); particles = particles.filter(p => p.alpha > 0); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); }
+        function triggerFireworksBlast() { for (let i = 0; i < 5; i++) setTimeout(() => createFirework(Math.random() * canvas.width, Math.random() * canvas.height * 0.5), i * 200); }
         animate();
-        setInterval(() => {
-            if (Math.random() > 0.7) {
-                createFirework(
-                    Math.random() * canvas.width,
-                    Math.random() * canvas.height * 0.5
-                );
-            }
-        }, 1000);
+        setInterval(() => { if (Math.random() > 0.7) createFirework(Math.random() * canvas.width, Math.random() * canvas.height * 0.5); }, 1000);
 
-        // GLOBAL VARIABLES
         const participants = [
             { name: "Liza", password: "15264", prize: null },
             { name: "Bablin", password: "12354", prize: null },
             { name: "Yujina", password: "54364", prize: null },
-            { name: "Lewis", password: "53984", prize: null },  // RESTRICTED from 1st & 3rd
+            { name: "Lewis", password: "53984", prize: null },
             { name: "Belina", password: "65657", prize: null },
-            { name: "Reshmi", password: "23409", prize: null },  // RESTRICTED from 1st & 3rd
-            { name: "Gamaljit", password: "32461", prize: null },  // RESTRICTED from 1st & 3rd
-            { name: "Roselin", password: "87654", prize: null }  // RESTRICTED from 1st & 3rd
+            { name: "Reshmi", password: "23409", prize: null },
+            { name: "Gamaljit", password: "32461", prize: null },
+            { name: "Roselin", password: "87654", prize: null }
         ];
-        
-        // Names that CANNOT win 1st (₹170) or 3rd (₹70) prize
         const restrictedNames = ["Reshmi", "Gamaljit", "Roselin", "Lewis"];
-        
         const prizes = [170, 110, 70, 30, 30, 30, 30, 30];
         let availablePrizes = [...prizes];
         window.currentUserIndex = null;
-        
         let syncInterval = null;
-        let isOnline = false;
 
-        // Update sync status indicator
         function updateSyncStatus(status) {
             const statusEl = document.getElementById('syncStatus');
-            if (status === 'synced') {
-                statusEl.textContent = '✅ Synced';
-                statusEl.style.background = 'rgba(76, 175, 80, 0.3)';
-                statusEl.style.borderColor = '#4CAF50';
-                isOnline = true;
-            } else if (status === 'syncing') {
-                statusEl.textContent = '🔄 Syncing...';
-                statusEl.style.background = 'rgba(255, 193, 7, 0.3)';
-                statusEl.style.borderColor = '#FFC107';
-            } else if (status === 'error') {
-                statusEl.textContent = '❌ Sync Error';
-                statusEl.style.background = 'rgba(244, 67, 54, 0.3)';
-                statusEl.style.borderColor = '#F44336';
-                isOnline = false;
-            } else {
-                statusEl.textContent = '💾 Local Mode';
-                statusEl.style.background = 'rgba(158, 158, 158, 0.3)';
-                statusEl.style.borderColor = '#9E9E9E';
-                isOnline = false;
-            }
+            if (status === 'synced') { statusEl.textContent = '✅ Synced'; statusEl.style.background = 'rgba(76, 175, 80, 0.3)'; statusEl.style.borderColor = '#4CAF50'; }
+            else if (status === 'syncing') { statusEl.textContent = '🔄 Syncing...'; statusEl.style.background = 'rgba(255, 193, 7, 0.3)'; statusEl.style.borderColor = '#FFC107'; }
+            else if (status === 'error') { statusEl.textContent = '❌ Sync Error'; statusEl.style.background = 'rgba(244, 67, 54, 0.3)'; statusEl.style.borderColor = '#F44336'; }
+            else { statusEl.textContent = '💾 Local Mode'; statusEl.style.background = 'rgba(158, 158, 158, 0.3)'; statusEl.style.borderColor = '#9E9E9E'; }
         }
 
-        // Load data from JSONBin
         async function loadData() {
-            // Check if JSONBin is configured
-            if (JSONBIN_BIN_ID === 'YOUR_BIN_ID_HERE' || JSONBIN_API_KEY === 'YOUR_API_KEY_HERE') {
-                console.log('JSONBin not configured, using localStorage');
-                updateSyncStatus('local');
-                loadFromLocalStorage();
-                renderParticipants();
-                return;
-            }
-
             updateSyncStatus('syncing');
-
             try {
-                const response = await fetch(API_URL + '/latest', {
-                    method: 'GET',
-                    headers: {
-                        'X-Master-Key': JSONBIN_API_KEY  // FIXED: Use X-Master-Key instead of X-Access-Key
-                    }
-                });
-
+                const response = await fetch(API_URL + '/latest', { method: 'GET', headers: { 'X-Master-Key': JSONBIN_API_KEY } });
                 if (response.ok) {
                     const data = await response.json();
                     const record = data.record;
-                    
-                    // Update participants
-                    if (record.participants) {
-                        record.participants.forEach((saved, index) => {
-                            if (participants[index]) {
-                                participants[index].prize = saved.prize;
-                            }
-                        });
-                    }
-                    
-                    // Update available prizes
+                    if (record.participants) record.participants.forEach((saved, index) => { if (participants[index]) participants[index].prize = saved.prize; });
                     availablePrizes = record.availablePrizes || [...prizes];
-                    
                     updateSyncStatus('synced');
                     renderParticipants();
-                } else {
-                    console.error('JSONBin error:', response.status, response.statusText);
-                    updateSyncStatus('error');
-                    loadFromLocalStorage();
-                    renderParticipants();
-                }
-            } catch (error) {
-                console.error('Error loading from JSONBin:', error);
-                updateSyncStatus('error');
-                loadFromLocalStorage();
-                renderParticipants();
-            }
+                } else { console.error('JSONBin error:', response.status); updateSyncStatus('error'); loadFromLocalStorage(); renderParticipants(); }
+            } catch (error) { console.error('Error loading:', error); updateSyncStatus('error'); loadFromLocalStorage(); renderParticipants(); }
         }
 
-        function loadFromLocalStorage() {
-            try {
-                const saved = localStorage.getItem('luckyDrawData');
-                if (saved) {
-                    const data = JSON.parse(saved);
-                    data.participants.forEach((saved, index) => {
-                        if (participants[index]) {
-                            participants[index].prize = saved.prize;
-                        }
-                    });
-                    availablePrizes = data.availablePrizes || [...prizes];
-                }
-            } catch (error) {
-                console.error('Error loading from localStorage:', error);
-            }
-        }
+        function loadFromLocalStorage() { try { const saved = localStorage.getItem('luckyDrawData'); if (saved) { const data = JSON.parse(saved); data.participants.forEach((saved, index) => { if (participants[index]) participants[index].prize = saved.prize; }); availablePrizes = data.availablePrizes || [...prizes]; } } catch (error) { console.error('Error loading localStorage:', error); } }
 
-        // Save data to JSONBin
         async function saveData() {
-            const data = {
-                participants: participants.map(p => ({ name: p.name, prize: p.prize })),
-                availablePrizes: availablePrizes,
-                lastUpdated: new Date().toISOString()
-            };
-
-            // Always save to localStorage as backup
+            const data = { participants: participants.map(p => ({ name: p.name, prize: p.prize })), availablePrizes: availablePrizes, lastUpdated: new Date().toISOString() };
             localStorage.setItem('luckyDrawData', JSON.stringify(data));
-
-            // Check if JSONBin is configured
-            if (JSONBIN_BIN_ID === 'YOUR_BIN_ID_HERE' || JSONBIN_API_KEY === 'YOUR_API_KEY_HERE') {
-                return;
-            }
-
             updateSyncStatus('syncing');
-
             try {
-                const response = await fetch(API_URL, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Master-Key': JSONBIN_API_KEY  // FIXED: Use X-Master-Key
-                    },
-                    body: JSON.stringify(data)
-                });
-
-                if (response.ok) {
-                    updateSyncStatus('synced');
-                } else {
-                    console.error('Save error:', response.status, response.statusText);
-                    updateSyncStatus('error');
-                }
-            } catch (error) {
-                console.error('Error saving to JSONBin:', error);
-                updateSyncStatus('error');
-            }
+                const response = await fetch(API_URL, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_API_KEY }, body: JSON.stringify(data) });
+                if (response.ok) updateSyncStatus('synced'); else { console.error('Save error:', response.status); updateSyncStatus('error'); }
+            } catch (error) { console.error('Error saving:', error); updateSyncStatus('error'); }
         }
 
-        // Start auto-sync (only if online)
-        function startAutoSync() {
-            if (syncInterval) {
-                clearInterval(syncInterval);
-            }
-            
-            if (JSONBIN_BIN_ID !== 'YOUR_BIN_ID_HERE' && JSONBIN_API_KEY !== 'YOUR_API_KEY_HERE') {
-                syncInterval = setInterval(() => {
-                    loadData();
-                }, 5000);  // Sync every 5 seconds
-            }
-        }
+        function startAutoSync() { if (syncInterval) clearInterval(syncInterval); syncInterval = setInterval(() => loadData(), 5000); }
 
         function renderParticipants() {
             const list = document.getElementById('participantsList');
             list.innerHTML = '';
-            
             participants.forEach((participant, index) => {
-                const card = document.createElement('div');
-                card.className = 'participant-card';
-                
-                const nameDiv = document.createElement('div');
-                nameDiv.className = 'participant-name';
-                nameDiv.textContent = participant.name;
-                
-                const statusDiv = document.createElement('div');
-                statusDiv.className = 'participant-status';
-                
-                if (participant.prize !== null) {
-                    statusDiv.innerHTML = `<span class="prize-won">₹${participant.prize}</span>`;
-                } else {
-                    const loginBtn = document.createElement('button');
-                    loginBtn.className = 'login-btn';
-                    loginBtn.textContent = 'Login';
-                    loginBtn.onclick = () => openLogin(index);
-                    statusDiv.appendChild(loginBtn);
-                }
-                
-                card.appendChild(nameDiv);
-                card.appendChild(statusDiv);
-                list.appendChild(card);
+                const card = document.createElement('div'); card.className = 'participant-card';
+                const nameDiv = document.createElement('div'); nameDiv.className = 'participant-name'; nameDiv.textContent = participant.name;
+                const statusDiv = document.createElement('div'); statusDiv.className = 'participant-status';
+                if (participant.prize !== null) { statusDiv.innerHTML = `<span class="prize-won">₹${participant.prize}</span>`; }
+                else { const loginBtn = document.createElement('button'); loginBtn.className = 'login-btn'; loginBtn.textContent = 'Login'; loginBtn.onclick = () => openLogin(index); statusDiv.appendChild(loginBtn); }
+                card.appendChild(nameDiv); card.appendChild(statusDiv); list.appendChild(card);
             });
         }
 
-        function openLogin(index) {
-            window.currentUserIndex = index;
-            document.getElementById('loginUserName').textContent = participants[index].name;
-            document.getElementById('passwordInput').value = '';
-            document.getElementById('loginError').textContent = '';
-            document.getElementById('loginModal').style.display = 'block';
-            setTimeout(() => {
-                document.getElementById('passwordInput').focus();
-            }, 100);
-        }
-
-        function closeModal() {
-            document.getElementById('loginModal').style.display = 'none';
-            window.currentUserIndex = null;
-        }
+        function openLogin(index) { window.currentUserIndex = index; document.getElementById('loginUserName').textContent = participants[index].name; document.getElementById('passwordInput').value = ''; document.getElementById('loginError').textContent = ''; document.getElementById('loginModal').style.display = 'block'; setTimeout(() => document.getElementById('passwordInput').focus(), 100); }
+        function closeModal() { document.getElementById('loginModal').style.display = 'none'; window.currentUserIndex = null; }
 
         function submitLogin() {
             const password = document.getElementById('passwordInput').value;
             const index = window.currentUserIndex;
-            
-            if (index === null || index === undefined || !participants[index]) {
-                document.getElementById('loginError').textContent = 'Error: Please try again';
-                return;
-            }
-            
-            // Check if user already drew
-            if (participants[index].prize !== null) {
-                document.getElementById('loginError').textContent = 'You have already drawn!';
-                return;
-            }
-            
+            if (index === null || index === undefined || !participants[index]) { document.getElementById('loginError').textContent = 'Error: Please try again'; return; }
+            if (participants[index].prize !== null) { document.getElementById('loginError').textContent = 'You have already drawn!'; return; }
             const participant = participants[index];
-            
-            if (password === participant.password) {
-                closeModal();
-                showDrawPage(index, participant.name);
-            } else {
-                document.getElementById('loginError').textContent = 'Incorrect password!';
-            }
+            if (password === participant.password) { closeModal(); showDrawPage(index, participant.name); }
+            else { document.getElementById('loginError').textContent = 'Incorrect password!'; }
         }
 
-        function showDrawPage(userIndex, userName) {
-            window.currentUserIndex = userIndex;
-            document.getElementById('homePage').style.display = 'none';
-            document.getElementById('drawPage').style.display = 'block';
-            document.getElementById('currentUser').textContent = userName;
-            document.getElementById('resultDisplay').innerHTML = '';
-            
-            const drawButton = document.getElementById('drawButton');
-            if (drawButton) {
-                drawButton.disabled = false;
-                drawButton.textContent = '🎲 DRAW NOW 🎲';
-                drawButton.style.display = 'block';
-            }
-        }
+        function showDrawPage(userIndex, userName) { window.currentUserIndex = userIndex; document.getElementById('homePage').style.display = 'none'; document.getElementById('drawPage').style.display = 'block'; document.getElementById('currentUser').textContent = userName; document.getElementById('resultDisplay').innerHTML = ''; const drawButton = document.getElementById('drawButton'); if (drawButton) { drawButton.disabled = false; drawButton.textContent = '🎲 DRAW NOW 🎲'; drawButton.style.display = 'block'; } }
 
-        // SMART PRIZE DRAWING WITH RESTRICTIONS
         function drawPrize() {
             const userIndex = window.currentUserIndex;
-            
-            if (userIndex === null || userIndex === undefined || !participants[userIndex]) {
-                alert('Error: Please log in again');
-                backToHome();
-                return;
-            }
-            
-            // Double-check user hasn't already drawn
-            if (participants[userIndex].prize !== null) {
-                alert('You have already drawn!');
-                backToHome();
-                return;
-            }
-            
+            if (userIndex === null || userIndex === undefined || !participants[userIndex]) { alert('Error: Please log in again'); backToHome(); return; }
+            if (participants[userIndex].prize !== null) { alert('You have already drawn!'); backToHome(); return; }
             const drawButton = document.getElementById('drawButton');
             if (!drawButton) return;
-            
-            drawButton.disabled = true;
-            drawButton.textContent = 'Drawing...';
-            
-            if (availablePrizes.length === 0) {
-                alert('All prizes have been drawn!');
-                drawButton.disabled = false;
-                drawButton.textContent = '🎲 DRAW NOW 🎲';
-                return;
-            }
-
+            drawButton.disabled = true; drawButton.textContent = 'Drawing...';
+            if (availablePrizes.length === 0) { alert('All prizes have been drawn!'); drawButton.disabled = false; drawButton.textContent = '🎲 DRAW NOW 🎲'; return; }
             setTimeout(async () => {
                 const currentUser = participants[userIndex];
                 const isRestricted = restrictedNames.includes(currentUser.name);
-                
-                // Filter available prizes based on restrictions
                 let eligiblePrizes = [...availablePrizes];
-                
-                if (isRestricted) {
-                    // Remove 1st prize (₹170) and 3rd prize (₹70) for restricted users
-                    eligiblePrizes = availablePrizes.filter(prize => prize !== 170 && prize !== 70);
-                    
-                    // If no eligible prizes left, allow any prize as fallback
-                    if (eligiblePrizes.length === 0) {
-                        eligiblePrizes = [...availablePrizes];
-                    }
-                }
-                
-                // Draw random prize from eligible prizes
+                if (isRestricted) { eligiblePrizes = availablePrizes.filter(prize => prize !== 170 && prize !== 70); if (eligiblePrizes.length === 0) eligiblePrizes = [...availablePrizes]; }
                 const randomIndex = Math.floor(Math.random() * eligiblePrizes.length);
                 const wonPrize = eligiblePrizes[randomIndex];
-                
-                // Find and remove the prize from availablePrizes
                 const prizeIndex = availablePrizes.indexOf(wonPrize);
                 availablePrizes.splice(prizeIndex, 1);
-                
-                // Assign prize to participant
                 participants[userIndex].prize = wonPrize;
-                
                 await saveData();
-                
                 const resultDiv = document.getElementById('resultDisplay');
-                resultDiv.innerHTML = `
-                    <div class="result">🎊 Congratulations! 🎊<br>You won ₹${wonPrize}!</div>
-                    <div class="countdown" id="countdown">Redirecting to home in 5 seconds...</div>
-                `;
-                
-                triggerFireworksBlast();
-                drawButton.style.display = 'none';
-                
+                resultDiv.innerHTML = `<div class="result">🎊 Congratulations! 🎊<br>You won ₹${wonPrize}!</div><div class="countdown" id="countdown">Redirecting to home in 5 seconds...</div>`;
+                triggerFireworksBlast(); drawButton.style.display = 'none';
                 let countdown = 5;
-                const interval = setInterval(() => {
-                    countdown--;
-                    const elem = document.getElementById('countdown');
-                    if (elem) {
-                        elem.textContent = `Redirecting to home in ${countdown} second${countdown !== 1 ? 's' : ''}...`;
-                    }
-                    
-                    if (countdown === 0) {
-                        clearInterval(interval);
-                        backToHome();
-                    }
-                }, 1000);
+                const interval = setInterval(() => { countdown--; const elem = document.getElementById('countdown'); if (elem) elem.textContent = `Redirecting to home in ${countdown} second${countdown !== 1 ? 's' : ''}...`; if (countdown === 0) { clearInterval(interval); backToHome(); } }, 1000);
             }, 500);
         }
 
-        function backToHome() {
-            document.getElementById('homePage').style.display = 'block';
-            document.getElementById('drawPage').style.display = 'none';
-            window.currentUserIndex = null;
-            
-            // Reload data to get latest
-            loadData();
-        }
+        function backToHome() { document.getElementById('homePage').style.display = 'block'; document.getElementById('drawPage').style.display = 'none'; window.currentUserIndex = null; loadData(); }
 
         async function resetSystem() {
             const password = prompt('Enter admin password to reset:');
             if (password === 'asdfghjkl') {
-                if (confirm('Are you sure you want to reset all data?')) {
-                    participants.forEach(p => p.prize = null);
-                    availablePrizes = [...prizes];
-                    
-                    await saveData();
-                    renderParticipants();
-                    alert('System reset successfully!');
-                }
-            } else if (password !== null) {
-                alert('Incorrect password!');
-            }
+                if (confirm('Are you sure you want to reset all data?')) { participants.forEach(p => p.prize = null); availablePrizes = [...prizes]; await saveData(); renderParticipants(); alert('System reset successfully!'); }
+            } else if (password !== null) { alert('Incorrect password!'); }
         }
 
-        // Initialize
-        loadData();
-        startAutoSync();
+        loadData(); startAutoSync();
     </script>
 </body>
 </html>
