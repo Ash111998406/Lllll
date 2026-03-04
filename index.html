@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Lucky Draw System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0e27;
+            color: white;
+            overflow-x: hidden;
+            min-height: 100vh;
+            touch-action: manipulation;
+        }
+
+        #fireworks-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+            padding-top: 10px;
+        }
+
+        .reset-btn {
+            position: absolute;
+            top: 10px;
+            right: 5px;
+            background: rgba(255, 59, 59, 0.3);
+            border: 2px solid #ff3b3b;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+
+        .reset-btn:active {
+            background: rgba(255, 59, 59, 0.5);
+            transform: scale(0.95);
+        }
+
+        h1 {
+            font-size: 2em;
+            background: linear-gradient(45deg, #ffd700, #ffed4e, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+            margin-bottom: 15px;
+            animation: glow 2s ease-in-out infinite alternate;
+            padding: 0 10px;
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 10px #ffd700); }
+            to { filter: drop-shadow(0 0 20px #ffd700); }
+        }
+
+        .prizes {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .prizes h2 {
+            color: #ffd700;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1.3em;
+        }
+
+        .prize-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .prize-item {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 140, 0, 0.2));
+            padding: 12px 8px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid rgba(255, 215, 0, 0.4);
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .prize-item:active {
+            transform: scale(0.95);
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+        }
+
+        .prize-item.first {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.4), rgba(255, 140, 0, 0.4));
+            font-size: 1.2em;
+            grid-column: span 2;
+        }
+
+        .participants {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .participant-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(100, 149, 237, 0.3);
+            border-radius: 15px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .participant-card:active {
+            transform: scale(0.98);
+            box-shadow: 0 8px 24px rgba(100, 149, 237, 0.3);
+        }
+
+        .participant-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #87ceeb;
+        }
+
+        .participant-status {
+            font-size: 1em;
+        }
+
+        .login-btn {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+            min-width: 80px;
+        }
+
+        .login-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.6);
+        }
+
+        .prize-won {
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 1.3em;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            margin: 20% auto;
+            padding: 30px 20px;
+            border: 3px solid #ffd700;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.5);
+            animation: modalSlideIn 0.5s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal h2 {
+            color: #ffd700;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .modal input {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: 2px solid #ffd700;
+            border-radius: 10px;
+            font-size: 1.1em;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            text-align: center;
+        }
+
+        .modal input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .modal-btn {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            border: none;
+            color: #1e3c72;
+            padding: 12px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            margin: 10px 5px;
+            transition: all 0.3s;
+        }
+
+        .modal-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.6);
+        }
+
+        .draw-page {
+            text-align: center;
+            padding: 40px 15px;
+        }
+
+        .draw-page h2 {
+            font-size: 2em;
+            margin-bottom: 30px;
+            color: #87ceeb;
+        }
+
+        .draw-btn {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+            border: none;
+            color: white;
+            padding: 20px 50px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 1.3em;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.5);
+            animation: pulse 2s infinite;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .draw-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 10px 35px rgba(255, 107, 107, 0.7);
+        }
+
+        .result {
+            margin-top: 30px;
+            font-size: 2.2em;
+            color: #ffd700;
+            font-weight: bold;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+            animation: winAnimation 1s ease-out;
+            line-height: 1.4;
+        }
+
+        @keyframes winAnimation {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .countdown {
+            margin-top: 20px;
+            font-size: 1.3em;
+            color: #87ceeb;
+        }
+
+        /* Desktop optimizations */
+        @media (min-width: 769px) {
+            h1 {
+                font-size: 3em;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            .reset-btn {
+                font-size: 12px;
+                padding: 8px 16px;
+            }
+            
+            .prizes {
+                padding: 20px;
+            }
+            
+            .prizes h2 {
+                font-size: 1.5em;
+            }
+            
+            .prize-grid {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            }
+            
+            .prize-item {
+                font-size: 1.2em;
+                padding: 15px;
+            }
+            
+            .prize-item.first {
+                font-size: 1.5em;
+            }
+            
+            .prize-item:hover {
+                transform: translateY(-5px);
+            }
+            
+            .participants {
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 20px;
+            }
+            
+            .participant-card {
+                padding: 20px;
+            }
+            
+            .participant-card:hover {
+                transform: translateY(-5px);
+            }
+            
+            .participant-name {
+                font-size: 1.3em;
+            }
+            
+            .participant-status {
+                font-size: 1.1em;
+            }
+            
+            .login-btn {
+                padding: 10px 25px;
+            }
+            
+            .login-btn:hover {
+                transform: scale(1.05);
+            }
+            
+            .modal-content {
+                padding: 40px;
+                max-width: 500px;
+                margin: 10% auto;
+            }
+            
+            .modal h2 {
+                font-size: 2em;
+            }
+            
+            .modal-btn {
+                padding: 15px 40px;
+                font-size: 1.2em;
+            }
+            
+            .modal-btn:hover {
+                transform: scale(1.05);
+            }
+            
+            .draw-page {
+                padding: 50px 20px;
+            }
+            
+            .draw-page h2 {
+                font-size: 2.5em;
+            }
+            
+            .draw-btn {
+                padding: 25px 60px;
+                font-size: 1.5em;
+            }
+            
+            .draw-btn:hover {
+                transform: scale(1.1);
+            }
+            
+            .result {
+                font-size: 3em;
+            }
+            
+            .countdown {
+                font-size: 1.5em;
+            }
+        }
+
+        /* Small phones */
+        @media (max-width: 360px) {
+            h1 {
+                font-size: 1.5em;
+            }
+            
+            .prizes h2 {
+                font-size: 1.1em;
+            }
+            
+            .prize-item {
+                font-size: 0.9em;
+                padding: 10px 5px;
+            }
+            
+            .prize-item.first {
+                font-size: 1.1em;
+            }
+            
+            .participant-name {
+                font-size: 1em;
+            }
+            
+            .result {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="fireworks-canvas"></canvas>
+    
+    <div class="container" id="homePage">
+        <div class="header">
+            <button class="reset-btn" onclick="resetSystem()">🔄 Reset</button>
+            <h1>🎉 Lucky Draw System 🎉</h1>
+        </div>
+
+        <div class="prizes">
+            <h2>💰 Cash Prizes 💰</h2>
+            <div class="prize-grid">
+                <div class="prize-item first">1st Prize: ₹170</div>
+                <div class="prize-item">2nd Prize: ₹110</div>
+                <div class="prize-item">3rd Prize: ₹70</div>
+                <div class="prize-item">₹30</div>
+                <div class="prize-item">₹30</div>
+                <div class="prize-item">₹30</div>
+                <div class="prize-item">₹30</div>
+                <div class="prize-item">₹30</div>
+            </div>
+        </div>
+
+        <div class="participants" id="participantsList"></div>
+    </div>
+
+    <div class="container" id="drawPage" style="display: none;">
+        <div class="draw-page">
+            <h2>Welcome, <span id="currentUser"></span>!</h2>
+            <button class="draw-btn" onclick="drawPrize()">🎲 DRAW NOW 🎲</button>
+            <div id="resultDisplay"></div>
+        </div>
+    </div>
+
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <h2>🔐 Login</h2>
+            <p id="loginUserName" style="font-size: 1.3em; margin-bottom: 20px;"></p>
+            <input type="password" id="passwordInput" placeholder="Enter Password" onkeypress="if(event.key==='Enter') submitLogin()">
+            <div>
+                <button class="modal-btn" onclick="submitLogin()">Login</button>
+                <button class="modal-btn" onclick="closeModal()" style="background: #666;">Cancel</button>
+            </div>
+            <p id="loginError" style="color: #ff6b6b; margin-top: 10px;"></p>
+        </div>
+    </div>
+
+    <script>
+        const participants = [
+            { name: "Liza", password: "15264", prize: null },
+            { name: "Bablin", password: "12354", prize: null },
+            { name: "Yujina", password: "54364", prize: null },
+            { name: "Lewis", password: "53984", prize: null },
+            { name: "Belina", password: "65657", prize: null },
+            { name: "Reshmi", password: "23409", prize: null },
+            { name: "Gamaljit", password: "32461", prize: null },
+            { name: "Roselin", password: "87654", prize: null }
+        ];
+
+        const prizes = [170, 110, 70, 30, 30, 30, 30, 30];
+        let availablePrizes = [...prizes];
+        let currentLoginUser = null;
+
+        // Load saved data
+        function loadData() {
+            const saved = localStorage.getItem('luckyDrawData');
+            if (saved) {
+                const data = JSON.parse(saved);
+                data.participants.forEach((saved, index) => {
+                    participants[index].prize = saved.prize;
+                });
+                availablePrizes = data.availablePrizes;
+            }
+            renderParticipants();
+        }
+
+        // Save data
+        function saveData() {
+            const data = {
+                participants: participants.map(p => ({ name: p.name, prize: p.prize })),
+                availablePrizes: availablePrizes
+            };
+            localStorage.setItem('luckyDrawData', JSON.stringify(data));
+        }
+
+        // Render participants
+        function renderParticipants() {
+            const list = document.getElementById('participantsList');
+            list.innerHTML = '';
+            
+            participants.forEach((participant, index) => {
+                const card = document.createElement('div');
+                card.className = 'participant-card';
+                
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'participant-name';
+                nameDiv.textContent = participant.name;
+                
+                const statusDiv = document.createElement('div');
+                statusDiv.className = 'participant-status';
+                
+                if (participant.prize !== null) {
+                    statusDiv.innerHTML = `<span class="prize-won">₹${participant.prize}</span>`;
+                } else {
+                    const loginBtn = document.createElement('button');
+                    loginBtn.className = 'login-btn';
+                    loginBtn.textContent = 'Login';
+                    loginBtn.onclick = () => openLogin(index);
+                    statusDiv.appendChild(loginBtn);
+                }
+                
+                card.appendChild(nameDiv);
+                card.appendChild(statusDiv);
+                list.appendChild(card);
+            });
+        }
+
+        // Open login modal
+        function openLogin(index) {
+            currentLoginUser = index;
+            document.getElementById('loginUserName').textContent = participants[index].name;
+            document.getElementById('passwordInput').value = '';
+            document.getElementById('loginError').textContent = '';
+            document.getElementById('loginModal').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('passwordInput').focus();
+            }, 100);
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('loginModal').style.display = 'none';
+            currentLoginUser = null;
+        }
+
+        // Submit login
+        function submitLogin() {
+            const password = document.getElementById('passwordInput').value;
+            const participant = participants[currentLoginUser];
+            
+            if (password === participant.password) {
+                closeModal();
+                showDrawPage(participant.name);
+            } else {
+                document.getElementById('loginError').textContent = 'Incorrect password!';
+            }
+        }
+
+        // Show draw page
+        function showDrawPage(name) {
+            document.getElementById('homePage').style.display = 'none';
+            document.getElementById('drawPage').style.display = 'block';
+            document.getElementById('currentUser').textContent = name;
+            document.getElementById('resultDisplay').innerHTML = '';
+        }
+
+        // Draw prize
+        function drawPrize() {
+            if (availablePrizes.length === 0) {
+                alert('All prizes have been drawn!');
+                return;
+            }
+
+            const randomIndex = Math.floor(Math.random() * availablePrizes.length);
+            const wonPrize = availablePrizes[randomIndex];
+            availablePrizes.splice(randomIndex, 1);
+            
+            participants[currentLoginUser].prize = wonPrize;
+            saveData();
+            
+            const resultDiv = document.getElementById('resultDisplay');
+            resultDiv.innerHTML = `
+                <div class="result">🎊 Congratulations! 🎊<br>You won ₹${wonPrize}!</div>
+                <div class="countdown" id="countdown">Redirecting in 5 seconds...</div>
+            `;
+            
+            triggerFireworksBlast();
+            
+            let countdown = 5;
+            const countdownInterval = setInterval(() => {
+                countdown--;
+                document.getElementById('countdown').textContent = `Redirecting in ${countdown} seconds...`;
+                
+                if (countdown === 0) {
+                    clearInterval(countdownInterval);
+                    backToHome();
+                }
+            }, 1000);
+        }
+
+        // Back to home
+        function backToHome() {
+            document.getElementById('homePage').style.display = 'block';
+            document.getElementById('drawPage').style.display = 'none';
+            currentLoginUser = null;
+            renderParticipants();
+        }
+
+        // Reset system
+        function resetSystem() {
+            const password = prompt('Enter admin password to reset:');
+            if (password === 'asdfghjkl') {
+                if (confirm('Are you sure you want to reset all data?')) {
+                    participants.forEach(p => p.prize = null);
+                    availablePrizes = [...prizes];
+                    localStorage.removeItem('luckyDrawData');
+                    renderParticipants();
+                    alert('System reset successfully!');
+                }
+            } else if (password !== null) {
+                alert('Incorrect password!');
+            }
+        }
+
+        // Fireworks animation
+        const canvas = document.getElementById('fireworks-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.velocity = {
+                    x: (Math.random() - 0.5) * 8,
+                    y: (Math.random() - 0.5) * 8
+                };
+                this.alpha = 1;
+                this.decay = Math.random() * 0.02 + 0.01;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+
+            update() {
+                this.velocity.y += 0.1;
+                this.x += this.velocity.x;
+                this.y += this.velocity.y;
+                this.alpha -= this.decay;
+            }
+        }
+
+        let particles = [];
+
+        function createFirework(x, y) {
+            const colors = ['#ffd700', '#ff6b6b', '#4ecdc4', '#45b7d1', '#f7b731', '#5f27cd', '#00d2d3'];
+            for (let i = 0; i < 50; i++) {
+                particles.push(new Particle(x, y, colors[Math.floor(Math.random() * colors.length)]));
+            }
+        }
+
+        function animate() {
+            ctx.fillStyle = 'rgba(10, 14, 39, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            particles = particles.filter(particle => particle.alpha > 0);
+
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        function triggerFireworksBlast() {
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    createFirework(
+                        Math.random() * canvas.width,
+                        Math.random() * canvas.height * 0.5
+                    );
+                }, i * 200);
+            }
+        }
+
+        // Continuous random fireworks
+        setInterval(() => {
+            if (Math.random() > 0.7) {
+                createFirework(
+                    Math.random() * canvas.width,
+                    Math.random() * canvas.height * 0.5
+                );
+            }
+        }, 1000);
+
+        animate();
+        loadData();
+    </script>
+</body>
+</html>
