@@ -185,6 +185,12 @@
             font-weight: bold;
             font-size: 1.3em;
             text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            animation: prizeGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes prizeGlow {
+            0%, 100% { text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+            50% { text-shadow: 0 0 20px rgba(255, 215, 0, 0.8); }
         }
 
         .modal {
@@ -340,156 +346,65 @@
             color: #87ceeb;
         }
 
+        .sync-status {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(76, 175, 80, 0.3);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            border: 2px solid #4CAF50;
+            z-index: 100;
+        }
+
         /* Desktop optimizations */
         @media (min-width: 769px) {
-            h1 {
-                font-size: 3em;
-            }
-            
-            .container {
-                padding: 20px;
-            }
-            
-            .reset-btn {
-                font-size: 12px;
-                padding: 8px 16px;
-            }
-            
-            .prizes {
-                padding: 20px;
-            }
-            
-            .prizes h2 {
-                font-size: 1.5em;
-            }
-            
-            .prize-grid {
-                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            }
-            
-            .prize-item {
-                font-size: 1.2em;
-                padding: 15px;
-            }
-            
-            .prize-item.first {
-                font-size: 1.5em;
-            }
-            
-            .prize-item:hover {
-                transform: translateY(-5px);
-            }
-            
-            .participants {
-                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-                gap: 20px;
-            }
-            
-            .participant-card {
-                padding: 20px;
-            }
-            
-            .participant-card:hover {
-                transform: translateY(-5px);
-            }
-            
-            .participant-name {
-                font-size: 1.3em;
-            }
-            
-            .participant-status {
-                font-size: 1.1em;
-            }
-            
-            .login-btn {
-                padding: 10px 25px;
-            }
-            
-            .login-btn:hover {
-                transform: scale(1.05);
-            }
-            
-            .modal-content {
-                padding: 40px;
-                max-width: 500px;
-                margin: 10% auto;
-            }
-            
-            .modal h2 {
-                font-size: 2em;
-            }
-            
-            .modal-btn {
-                padding: 15px 40px;
-                font-size: 1.2em;
-            }
-            
-            .modal-btn:hover {
-                transform: scale(1.05);
-            }
-            
-            .draw-page {
-                padding: 50px 20px;
-            }
-            
-            .draw-page h2 {
-                font-size: 2.5em;
-            }
-            
-            .draw-btn {
-                padding: 30px 80px;
-                font-size: 1.8em;
-            }
-            
-            .draw-btn:hover:not(:disabled) {
-                transform: scale(1.1);
-            }
-            
-            .result {
-                font-size: 3em;
-            }
-            
-            .countdown {
-                font-size: 1.5em;
-            }
+            h1 { font-size: 3em; }
+            .container { padding: 20px; }
+            .reset-btn { font-size: 12px; padding: 8px 16px; }
+            .prizes { padding: 20px; }
+            .prizes h2 { font-size: 1.5em; }
+            .prize-grid { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
+            .prize-item { font-size: 1.2em; padding: 15px; }
+            .prize-item.first { font-size: 1.5em; }
+            .prize-item:hover { transform: translateY(-5px); }
+            .participants { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+            .participant-card { padding: 20px; }
+            .participant-card:hover { transform: translateY(-5px); }
+            .participant-name { font-size: 1.3em; }
+            .participant-status { font-size: 1.1em; }
+            .login-btn { padding: 10px 25px; }
+            .login-btn:hover { transform: scale(1.05); }
+            .modal-content { padding: 40px; max-width: 500px; margin: 10% auto; }
+            .modal h2 { font-size: 2em; }
+            .modal-btn { padding: 15px 40px; font-size: 1.2em; }
+            .modal-btn:hover { transform: scale(1.05); }
+            .draw-page { padding: 50px 20px; }
+            .draw-page h2 { font-size: 2.5em; }
+            .draw-btn { padding: 30px 80px; font-size: 1.8em; }
+            .draw-btn:hover:not(:disabled) { transform: scale(1.1); }
+            .result { font-size: 3em; }
+            .countdown { font-size: 1.5em; }
         }
 
         /* Small phones */
         @media (max-width: 360px) {
-            h1 {
-                font-size: 1.5em;
-            }
-            
-            .prizes h2 {
-                font-size: 1.1em;
-            }
-            
-            .prize-item {
-                font-size: 0.9em;
-                padding: 10px 5px;
-            }
-            
-            .prize-item.first {
-                font-size: 1.1em;
-            }
-            
-            .participant-name {
-                font-size: 1em;
-            }
-            
-            .result {
-                font-size: 1.8em;
-            }
-            
-            .draw-btn {
-                padding: 20px 40px;
-                font-size: 1.2em;
-            }
+            h1 { font-size: 1.5em; }
+            .prizes h2 { font-size: 1.1em; }
+            .prize-item { font-size: 0.9em; padding: 10px 5px; }
+            .prize-item.first { font-size: 1.1em; }
+            .participant-name { font-size: 1em; }
+            .result { font-size: 1.8em; }
+            .draw-btn { padding: 20px 40px; font-size: 1.2em; }
         }
     </style>
 </head>
 <body>
     <canvas id="fireworks-canvas"></canvas>
+    
+    <!-- Sync Status Indicator -->
+    <div class="sync-status" id="syncStatus">🔄 Syncing...</div>
     
     <div class="container" id="homePage">
         <div class="header">
@@ -538,20 +453,13 @@
     </div>
 
     <script>
-        // GLOBAL VARIABLES - Declare at the very top
-        let currentLoginUser = null;
-        const participants = [
-            { name: "Liza", password: "15264", prize: null },
-            { name: "Bablin", password: "12354", prize: null },
-            { name: "Yujina", password: "54364", prize: null },
-            { name: "Lewis", password: "53984", prize: null },
-            { name: "Belina", password: "65657", prize: null },
-            { name: "Reshmi", password: "23409", prize: null },
-            { name: "Gamaljit", password: "32461", prize: null },
-            { name: "Roselin", password: "87654", prize: null }
-        ];
-        const prizes = [170, 110, 70, 30, 30, 30, 30, 30];
-        let availablePrizes = [...prizes];
+        // ===== CONFIGURATION =====
+        // Replace with your JSONBin.io bin ID
+        // Get it from: https://jsonbin.io (free account, takes 2 minutes)
+        const JSONBIN_BIN_ID = 'YOUR_BIN_ID_HERE';  // e.g., '67a1b2c3d4e5f6g7h8i9'
+        const JSONBIN_API_KEY = '$2a$10$YOUR_API_KEY_HERE';  // From JSONBin.io dashboard
+        
+        const API_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
 
         // Initialize fireworks
         const canvas = document.getElementById('fireworks-canvas');
@@ -629,10 +537,7 @@
             }
         }
 
-        // Start animation
         animate();
-
-        // Continuous random fireworks
         setInterval(() => {
             if (Math.random() > 0.7) {
                 createFirework(
@@ -642,8 +547,93 @@
             }
         }, 1000);
 
-        // Load saved data
-        function loadData() {
+        // GLOBAL VARIABLES
+        const participants = [
+            { name: "Liza", password: "15264", prize: null },
+            { name: "Bablin", password: "12354", prize: null },
+            { name: "Yujina", password: "54364", prize: null },
+            { name: "Lewis", password: "53984", prize: null },
+            { name: "Belina", password: "65657", prize: null },
+            { name: "Reshmi", password: "23409", prize: null },
+            { name: "Gamaljit", password: "32461", prize: null },
+            { name: "Roselin", password: "87654", prize: null }
+        ];
+        const prizes = [170, 110, 70, 30, 30, 30, 30, 30];
+        let availablePrizes = [...prizes];
+        window.currentUserIndex = null;
+
+        // Update sync status indicator
+        function updateSyncStatus(status) {
+            const statusEl = document.getElementById('syncStatus');
+            if (status === 'synced') {
+                statusEl.textContent = '✅ Synced';
+                statusEl.style.background = 'rgba(76, 175, 80, 0.3)';
+                statusEl.style.borderColor = '#4CAF50';
+            } else if (status === 'syncing') {
+                statusEl.textContent = '🔄 Syncing...';
+                statusEl.style.background = 'rgba(255, 193, 7, 0.3)';
+                statusEl.style.borderColor = '#FFC107';
+            } else {
+                statusEl.textContent = '💾 Local Mode';
+                statusEl.style.background = 'rgba(158, 158, 158, 0.3)';
+                statusEl.style.borderColor = '#9E9E9E';
+            }
+        }
+
+        // Load data from JSONBin or localStorage
+        async function loadData() {
+            updateSyncStatus('syncing');
+            
+            // Check if JSONBin is configured
+            if (JSONBIN_BIN_ID === 'YOUR_BIN_ID_HERE') {
+                // Use localStorage as fallback
+                console.log('JSONBin not configured, using localStorage');
+                updateSyncStatus('local');
+                loadFromLocalStorage();
+                return;
+            }
+
+            try {
+                const response = await fetch(API_URL + '/latest', {
+                    method: 'GET',
+                    headers: {
+                        'X-Access-Key': JSONBIN_API_KEY
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const record = data.record;
+                    
+                    // Update participants
+                    if (record.participants) {
+                        record.participants.forEach((saved, index) => {
+                            if (participants[index]) {
+                                participants[index].prize = saved.prize;
+                            }
+                        });
+                    }
+                    
+                    // Update available prizes
+                    availablePrizes = record.availablePrizes || [...prizes];
+                    
+                    updateSyncStatus('synced');
+                } else {
+                    throw new Error('Failed to load from JSONBin');
+                }
+            } catch (error) {
+                console.error('Error loading from JSONBin:', error);
+                updateSyncStatus('local');
+                loadFromLocalStorage();
+            }
+            
+            renderParticipants();
+            
+            // Auto-refresh every 3 seconds to check for updates
+            setTimeout(loadData, 3000);
+        }
+
+        function loadFromLocalStorage() {
             try {
                 const saved = localStorage.getItem('luckyDrawData');
                 if (saved) {
@@ -656,25 +646,50 @@
                     availablePrizes = data.availablePrizes || [...prizes];
                 }
             } catch (error) {
-                console.error('Error loading data:', error);
+                console.error('Error loading from localStorage:', error);
             }
-            renderParticipants();
         }
 
-        // Save data
-        function saveData() {
-            try {
-                const data = {
-                    participants: participants.map(p => ({ name: p.name, prize: p.prize })),
-                    availablePrizes: availablePrizes
-                };
+        // Save data to JSONBin or localStorage
+        async function saveData() {
+            const data = {
+                participants: participants.map(p => ({ name: p.name, prize: p.prize })),
+                availablePrizes: availablePrizes,
+                lastUpdated: new Date().toISOString()
+            };
+
+            // Check if JSONBin is configured
+            if (JSONBIN_BIN_ID === 'YOUR_BIN_ID_HERE') {
+                // Save to localStorage
                 localStorage.setItem('luckyDrawData', JSON.stringify(data));
+                return;
+            }
+
+            updateSyncStatus('syncing');
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Access-Key': JSONBIN_API_KEY
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    updateSyncStatus('synced');
+                } else {
+                    throw new Error('Failed to save to JSONBin');
+                }
             } catch (error) {
-                console.error('Error saving data:', error);
+                console.error('Error saving to JSONBin:', error);
+                // Fallback to localStorage
+                localStorage.setItem('luckyDrawData', JSON.stringify(data));
+                updateSyncStatus('local');
             }
         }
 
-        // Render participants
         function renderParticipants() {
             const list = document.getElementById('participantsList');
             list.innerHTML = '';
@@ -706,9 +721,8 @@
             });
         }
 
-        // Open login modal
         function openLogin(index) {
-            currentLoginUser = index;
+            window.currentUserIndex = index;
             document.getElementById('loginUserName').textContent = participants[index].name;
             document.getElementById('passwordInput').value = '';
             document.getElementById('loginError').textContent = '';
@@ -718,39 +732,37 @@
             }, 100);
         }
 
-        // Close modal
         function closeModal() {
             document.getElementById('loginModal').style.display = 'none';
-            currentLoginUser = null;
+            window.currentUserIndex = null;
         }
 
-        // Submit login
         function submitLogin() {
             const password = document.getElementById('passwordInput').value;
+            const index = window.currentUserIndex;
             
-            if (currentLoginUser === null || !participants[currentLoginUser]) {
+            if (index === null || index === undefined || !participants[index]) {
                 document.getElementById('loginError').textContent = 'Error: Please try again';
                 return;
             }
             
-            const participant = participants[currentLoginUser];
+            const participant = participants[index];
             
             if (password === participant.password) {
                 closeModal();
-                showDrawPage(participant.name);
+                showDrawPage(index, participant.name);
             } else {
                 document.getElementById('loginError').textContent = 'Incorrect password!';
             }
         }
 
-        // Show draw page
-        function showDrawPage(name) {
+        function showDrawPage(userIndex, userName) {
+            window.currentUserIndex = userIndex;
             document.getElementById('homePage').style.display = 'none';
             document.getElementById('drawPage').style.display = 'block';
-            document.getElementById('currentUser').textContent = name;
+            document.getElementById('currentUser').textContent = userName;
             document.getElementById('resultDisplay').innerHTML = '';
             
-            // Reset button state
             const drawButton = document.getElementById('drawButton');
             if (drawButton) {
                 drawButton.disabled = false;
@@ -759,32 +771,21 @@
             }
         }
 
-        // Draw prize - FIXED with proper null checks
         function drawPrize() {
-            // Verify currentLoginUser is valid
-            if (currentLoginUser === null || currentLoginUser === undefined) {
+            const userIndex = window.currentUserIndex;
+            
+            if (userIndex === null || userIndex === undefined || !participants[userIndex]) {
                 alert('Error: Please log in again');
                 backToHome();
                 return;
             }
             
-            if (!participants[currentLoginUser]) {
-                alert('Error: Invalid user. Please log in again');
-                backToHome();
-                return;
-            }
-            
             const drawButton = document.getElementById('drawButton');
-            if (!drawButton) {
-                alert('Error: Button not found');
-                return;
-            }
+            if (!drawButton) return;
             
-            // Disable button immediately
             drawButton.disabled = true;
             drawButton.textContent = 'Drawing...';
             
-            // Check if prizes available
             if (availablePrizes.length === 0) {
                 alert('All prizes have been drawn!');
                 drawButton.disabled = false;
@@ -792,35 +793,24 @@
                 return;
             }
 
-            // Draw prize after short delay
-            setTimeout(() => {
-                // Select random prize
+            setTimeout(async () => {
                 const randomIndex = Math.floor(Math.random() * availablePrizes.length);
                 const wonPrize = availablePrizes[randomIndex];
                 
-                // Remove from available
                 availablePrizes.splice(randomIndex, 1);
+                participants[userIndex].prize = wonPrize;
                 
-                // Assign to participant
-                participants[currentLoginUser].prize = wonPrize;
+                await saveData();
                 
-                // Save
-                saveData();
-                
-                // Show result
                 const resultDiv = document.getElementById('resultDisplay');
                 resultDiv.innerHTML = `
                     <div class="result">🎊 Congratulations! 🎊<br>You won ₹${wonPrize}!</div>
                     <div class="countdown" id="countdown">Redirecting to home in 5 seconds...</div>
                 `;
                 
-                // Fireworks
                 triggerFireworksBlast();
-                
-                // Hide button
                 drawButton.style.display = 'none';
                 
-                // Countdown
                 let countdown = 5;
                 const interval = setInterval(() => {
                     countdown--;
@@ -837,22 +827,20 @@
             }, 500);
         }
 
-        // Back to home
         function backToHome() {
             document.getElementById('homePage').style.display = 'block';
             document.getElementById('drawPage').style.display = 'none';
-            currentLoginUser = null;
-            renderParticipants();
+            window.currentUserIndex = null;
         }
 
-        // Reset system
-        function resetSystem() {
+        async function resetSystem() {
             const password = prompt('Enter admin password to reset:');
             if (password === 'asdfghjkl') {
                 if (confirm('Are you sure you want to reset all data?')) {
                     participants.forEach(p => p.prize = null);
                     availablePrizes = [...prizes];
-                    localStorage.removeItem('luckyDrawData');
+                    
+                    await saveData();
                     renderParticipants();
                     alert('System reset successfully!');
                 }
@@ -861,7 +849,6 @@
             }
         }
 
-        // Load data on startup
         loadData();
     </script>
 </body>
