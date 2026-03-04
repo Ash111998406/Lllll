@@ -538,6 +538,96 @@
     </div>
 
     <script>
+        // Initialize fireworks first
+        const canvas = document.getElementById('fireworks-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.velocity = {
+                    x: (Math.random() - 0.5) * 8,
+                    y: (Math.random() - 0.5) * 8
+                };
+                this.alpha = 1;
+                this.decay = Math.random() * 0.02 + 0.01;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+
+            update() {
+                this.velocity.y += 0.1;
+                this.x += this.velocity.x;
+                this.y += this.velocity.y;
+                this.alpha -= this.decay;
+            }
+        }
+
+        let particles = [];
+
+        function createFirework(x, y) {
+            const colors = ['#ffd700', '#ff6b6b', '#4ecdc4', '#45b7d1', '#f7b731', '#5f27cd', '#00d2d3'];
+            for (let i = 0; i < 50; i++) {
+                particles.push(new Particle(x, y, colors[Math.floor(Math.random() * colors.length)]));
+            }
+        }
+
+        function animate() {
+            ctx.fillStyle = 'rgba(10, 14, 39, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            particles = particles.filter(particle => particle.alpha > 0);
+
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        function triggerFireworksBlast() {
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    createFirework(
+                        Math.random() * canvas.width,
+                        Math.random() * canvas.height * 0.5
+                    );
+                }, i * 200);
+            }
+        }
+
+        // Start animation
+        animate();
+
+        // Continuous random fireworks
+        setInterval(() => {
+            if (Math.random() > 0.7) {
+                createFirework(
+                    Math.random() * canvas.width,
+                    Math.random() * canvas.height * 0.5
+                );
+            }
+        }, 1000);
+
+        // Game data
         const participants = [
             { name: "Liza", password: "15264", prize: null },
             { name: "Bablin", password: "12354", prize: null },
@@ -580,7 +670,6 @@
                     availablePrizes: availablePrizes
                 };
                 localStorage.setItem('luckyDrawData', JSON.stringify(data));
-                console.log('Data saved successfully:', data);
             } catch (error) {
                 console.error('Error saving data:', error);
             }
@@ -665,24 +754,15 @@
             }
         }
 
-        // Draw prize
+        // Draw prize - FIXED VERSION
         function drawPrize() {
-            console.log('Draw button clicked!');
-            
-            // Get the button
             const drawButton = document.querySelector('.draw-btn');
-            if (!drawButton) {
-                console.error('Draw button not found!');
-                return;
-            }
             
-            // Disable the button
+            // Disable button immediately
             drawButton.disabled = true;
             drawButton.textContent = 'Drawing...';
             
-            console.log('Available prizes:', availablePrizes);
-            console.log('Current user index:', currentLoginUser);
-            
+            // Check if prizes available
             if (availablePrizes.length === 0) {
                 alert('All prizes have been drawn!');
                 drawButton.disabled = false;
@@ -690,63 +770,53 @@
                 return;
             }
 
-            // Draw the prize after a short delay
+            // Draw prize after short delay
             setTimeout(() => {
-                try {
-                    const randomIndex = Math.floor(Math.random() * availablePrizes.length);
-                    const wonPrize = availablePrizes[randomIndex];
+                // Select random prize
+                const randomIndex = Math.floor(Math.random() * availablePrizes.length);
+                const wonPrize = availablePrizes[randomIndex];
+                
+                // Remove from available
+                availablePrizes.splice(randomIndex, 1);
+                
+                // Assign to participant
+                participants[currentLoginUser].prize = wonPrize;
+                
+                // Save
+                saveData();
+                
+                // Show result
+                const resultDiv = document.getElementById('resultDisplay');
+                resultDiv.innerHTML = `
+                    <div class="result">🎊 Congratulations! 🎊<br>You won ₹${wonPrize}!</div>
+                    <div class="countdown" id="countdown">Redirecting to home in 5 seconds...</div>
+                `;
+                
+                // Fireworks
+                triggerFireworksBlast();
+                
+                // Hide button
+                drawButton.style.display = 'none';
+                
+                // Countdown
+                let countdown = 5;
+                const interval = setInterval(() => {
+                    countdown--;
+                    const elem = document.getElementById('countdown');
+                    if (elem) {
+                        elem.textContent = `Redirecting to home in ${countdown} second${countdown !== 1 ? 's' : ''}...`;
+                    }
                     
-                    console.log('Won prize:', wonPrize);
-                    
-                    // Remove prize from available pool
-                    availablePrizes.splice(randomIndex, 1);
-                    
-                    // Assign prize to participant
-                    participants[currentLoginUser].prize = wonPrize;
-                    
-                    // Save data
-                    saveData();
-                    
-                    // Show result
-                    const resultDiv = document.getElementById('resultDisplay');
-                    resultDiv.innerHTML = `
-                        <div class="result">🎊 Congratulations! 🎊<br>You won ₹${wonPrize}!</div>
-                        <div class="countdown" id="countdown">Redirecting to home in 5 seconds...</div>
-                    `;
-                    
-                    // Trigger fireworks
-                    triggerFireworksBlast();
-                    
-                    // Hide button
-                    drawButton.style.display = 'none';
-                    
-                    // Start countdown
-                    let countdown = 5;
-                    const countdownInterval = setInterval(() => {
-                        countdown--;
-                        const countdownElement = document.getElementById('countdown');
-                        if (countdownElement) {
-                            countdownElement.textContent = `Redirecting to home in ${countdown} second${countdown !== 1 ? 's' : ''}...`;
-                        }
-                        
-                        if (countdown === 0) {
-                            clearInterval(countdownInterval);
-                            backToHome();
-                        }
-                    }, 1000);
-                    
-                } catch (error) {
-                    console.error('Error in drawPrize:', error);
-                    alert('An error occurred. Please try again.');
-                    drawButton.disabled = false;
-                    drawButton.textContent = '🎲 DRAW NOW 🎲';
-                }
+                    if (countdown === 0) {
+                        clearInterval(interval);
+                        backToHome();
+                    }
+                }, 1000);
             }, 500);
         }
 
         // Back to home
         function backToHome() {
-            console.log('Going back to home');
             document.getElementById('homePage').style.display = 'block';
             document.getElementById('drawPage').style.display = 'none';
             currentLoginUser = null;
@@ -769,99 +839,8 @@
             }
         }
 
-        // Fireworks animation
-        const canvas = document.getElementById('fireworks-canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        });
-
-        class Particle {
-            constructor(x, y, color) {
-                this.x = x;
-                this.y = y;
-                this.color = color;
-                this.velocity = {
-                    x: (Math.random() - 0.5) * 8,
-                    y: (Math.random() - 0.5) * 8
-                };
-                this.alpha = 1;
-                this.decay = Math.random() * 0.02 + 0.01;
-            }
-
-            draw() {
-                ctx.save();
-                ctx.globalAlpha = this.alpha;
-                ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.restore();
-            }
-
-            update() {
-                this.velocity.y += 0.1;
-                this.x += this.velocity.x;
-                this.y += this.velocity.y;
-                this.alpha -= this.decay;
-            }
-        }
-
-        let particles = [];
-
-        function createFirework(x, y) {
-            const colors = ['#ffd700', '#ff6b6b', '#4ecdc4', '#45b7d1', '#f7b731', '#5f27cd', '#00d2d3'];
-            for (let i = 0; i < 50; i++) {
-                particles.push(new Particle(x, y, colors[Math.floor(Math.random() * colors.length)]));
-            }
-        }
-
-        function animate() {
-            ctx.fillStyle = 'rgba(10, 14, 39, 0.1)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            particles = particles.filter(particle => particle.alpha > 0);
-
-            particles.forEach(particle => {
-                particle.update();
-                particle.draw();
-            });
-
-            requestAnimationFrame(animate);
-        }
-
-        function triggerFireworksBlast() {
-            for (let i = 0; i < 5; i++) {
-                setTimeout(() => {
-                    createFirework(
-                        Math.random() * canvas.width,
-                        Math.random() * canvas.height * 0.5
-                    );
-                }, i * 200);
-            }
-        }
-
-        // Continuous random fireworks
-        setInterval(() => {
-            if (Math.random() > 0.7) {
-                createFirework(
-                    Math.random() * canvas.width,
-                    Math.random() * canvas.height * 0.5
-                );
-            }
-        }, 1000);
-
-        // Start animation
-        animate();
-        
-        // Load data when page loads
+        // Load data on startup
         loadData();
-        
-        console.log('Lucky Draw System loaded successfully!');
     </script>
 </body>
 </html>
