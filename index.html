@@ -264,34 +264,46 @@
         }
 
         .draw-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
             text-align: center;
             padding: 40px 15px;
         }
 
         .draw-page h2 {
             font-size: 2em;
-            margin-bottom: 30px;
+            margin-bottom: 50px;
             color: #87ceeb;
+        }
+
+        .draw-btn-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
         }
 
         .draw-btn {
             background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
             border: none;
             color: white;
-            padding: 20px 50px;
+            padding: 25px 60px;
             border-radius: 15px;
             cursor: pointer;
-            font-size: 1.3em;
+            font-size: 1.5em;
             font-weight: bold;
             transition: all 0.3s;
             box-shadow: 0 8px 25px rgba(255, 107, 107, 0.5);
             animation: pulse 2s infinite;
-            width: 100%;
-            max-width: 300px;
+            margin: 0 auto;
         }
         
         .draw-btn:disabled {
-            opacity: 0.5;
+            opacity: 0.6;
             cursor: not-allowed;
             animation: none;
         }
@@ -301,13 +313,13 @@
             50% { transform: scale(1.05); }
         }
 
-        .draw-btn:active {
+        .draw-btn:active:not(:disabled) {
             transform: scale(0.95);
             box-shadow: 0 10px 35px rgba(255, 107, 107, 0.7);
         }
 
         .result {
-            margin-top: 30px;
+            margin-top: 40px;
             font-size: 2.2em;
             color: #ffd700;
             font-weight: bold;
@@ -425,11 +437,11 @@
             }
             
             .draw-btn {
-                padding: 25px 60px;
-                font-size: 1.5em;
+                padding: 30px 80px;
+                font-size: 1.8em;
             }
             
-            .draw-btn:hover {
+            .draw-btn:hover:not(:disabled) {
                 transform: scale(1.1);
             }
             
@@ -468,6 +480,11 @@
             .result {
                 font-size: 1.8em;
             }
+            
+            .draw-btn {
+                padding: 20px 40px;
+                font-size: 1.2em;
+            }
         }
     </style>
 </head>
@@ -500,7 +517,9 @@
     <div class="container" id="drawPage" style="display: none;">
         <div class="draw-page">
             <h2>Welcome, <span id="currentUser"></span>!</h2>
-            <button class="draw-btn" onclick="drawPrize()">🎲 DRAW NOW 🎲</button>
+            <div class="draw-btn-container">
+                <button class="draw-btn" onclick="drawPrize()">🎲 DRAW NOW 🎲</button>
+            </div>
             <div id="resultDisplay"></div>
         </div>
     </div>
@@ -536,24 +555,35 @@
 
         // Load saved data
         function loadData() {
-            const saved = localStorage.getItem('luckyDrawData');
-            if (saved) {
-                const data = JSON.parse(saved);
-                data.participants.forEach((saved, index) => {
-                    participants[index].prize = saved.prize;
-                });
-                availablePrizes = data.availablePrizes;
+            try {
+                const saved = localStorage.getItem('luckyDrawData');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    data.participants.forEach((saved, index) => {
+                        if (participants[index]) {
+                            participants[index].prize = saved.prize;
+                        }
+                    });
+                    availablePrizes = data.availablePrizes || [...prizes];
+                }
+            } catch (error) {
+                console.error('Error loading data:', error);
             }
             renderParticipants();
         }
 
         // Save data
         function saveData() {
-            const data = {
-                participants: participants.map(p => ({ name: p.name, prize: p.prize })),
-                availablePrizes: availablePrizes
-            };
-            localStorage.setItem('luckyDrawData', JSON.stringify(data));
+            try {
+                const data = {
+                    participants: participants.map(p => ({ name: p.name, prize: p.prize })),
+                    availablePrizes: availablePrizes
+                };
+                localStorage.setItem('luckyDrawData', JSON.stringify(data));
+                console.log('Data saved successfully:', data);
+            } catch (error) {
+                console.error('Error saving data:', error);
+            }
         }
 
         // Render participants
@@ -625,77 +655,100 @@
             document.getElementById('drawPage').style.display = 'block';
             document.getElementById('currentUser').textContent = name;
             document.getElementById('resultDisplay').innerHTML = '';
+            
+            // Reset button state
+            const drawButton = document.querySelector('.draw-btn');
+            if (drawButton) {
+                drawButton.disabled = false;
+                drawButton.textContent = '🎲 DRAW NOW 🎲';
+                drawButton.style.display = 'block';
+            }
         }
 
         // Draw prize
         function drawPrize() {
-            // Disable the button to prevent multiple clicks
+            console.log('Draw button clicked!');
+            
+            // Get the button
             const drawButton = document.querySelector('.draw-btn');
+            if (!drawButton) {
+                console.error('Draw button not found!');
+                return;
+            }
+            
+            // Disable the button
             drawButton.disabled = true;
             drawButton.textContent = 'Drawing...';
-            drawButton.style.opacity = '0.6';
+            
+            console.log('Available prizes:', availablePrizes);
+            console.log('Current user index:', currentLoginUser);
             
             if (availablePrizes.length === 0) {
                 alert('All prizes have been drawn!');
                 drawButton.disabled = false;
                 drawButton.textContent = '🎲 DRAW NOW 🎲';
-                drawButton.style.opacity = '1';
                 return;
             }
 
-            // Immediately draw and show the prize
+            // Draw the prize after a short delay
             setTimeout(() => {
-                const randomIndex = Math.floor(Math.random() * availablePrizes.length);
-                const wonPrize = availablePrizes[randomIndex];
-                availablePrizes.splice(randomIndex, 1);
-                
-                participants[currentLoginUser].prize = wonPrize;
-                saveData();
-                
-                // Show result immediately
-                const resultDiv = document.getElementById('resultDisplay');
-                resultDiv.innerHTML = `
-                    <div class="result">🎊 Congratulations! 🎊<br>You won ₹${wonPrize}!</div>
-                    <div class="countdown" id="countdown">Redirecting to home in 5 seconds...</div>
-                `;
-                
-                // Trigger fireworks blast
-                triggerFireworksBlast();
-                
-                // Hide the draw button
-                drawButton.style.display = 'none';
-                
-                // Start countdown
-                let countdown = 5;
-                const countdownInterval = setInterval(() => {
-                    countdown--;
-                    const countdownElement = document.getElementById('countdown');
-                    if (countdownElement) {
-                        countdownElement.textContent = `Redirecting to home in ${countdown} second${countdown !== 1 ? 's' : ''}...`;
-                    }
+                try {
+                    const randomIndex = Math.floor(Math.random() * availablePrizes.length);
+                    const wonPrize = availablePrizes[randomIndex];
                     
-                    if (countdown === 0) {
-                        clearInterval(countdownInterval);
-                        backToHome();
-                    }
-                }, 1000);
-            }, 300); // Small delay for visual feedback
+                    console.log('Won prize:', wonPrize);
+                    
+                    // Remove prize from available pool
+                    availablePrizes.splice(randomIndex, 1);
+                    
+                    // Assign prize to participant
+                    participants[currentLoginUser].prize = wonPrize;
+                    
+                    // Save data
+                    saveData();
+                    
+                    // Show result
+                    const resultDiv = document.getElementById('resultDisplay');
+                    resultDiv.innerHTML = `
+                        <div class="result">🎊 Congratulations! 🎊<br>You won ₹${wonPrize}!</div>
+                        <div class="countdown" id="countdown">Redirecting to home in 5 seconds...</div>
+                    `;
+                    
+                    // Trigger fireworks
+                    triggerFireworksBlast();
+                    
+                    // Hide button
+                    drawButton.style.display = 'none';
+                    
+                    // Start countdown
+                    let countdown = 5;
+                    const countdownInterval = setInterval(() => {
+                        countdown--;
+                        const countdownElement = document.getElementById('countdown');
+                        if (countdownElement) {
+                            countdownElement.textContent = `Redirecting to home in ${countdown} second${countdown !== 1 ? 's' : ''}...`;
+                        }
+                        
+                        if (countdown === 0) {
+                            clearInterval(countdownInterval);
+                            backToHome();
+                        }
+                    }, 1000);
+                    
+                } catch (error) {
+                    console.error('Error in drawPrize:', error);
+                    alert('An error occurred. Please try again.');
+                    drawButton.disabled = false;
+                    drawButton.textContent = '🎲 DRAW NOW 🎲';
+                }
+            }, 500);
         }
 
         // Back to home
         function backToHome() {
+            console.log('Going back to home');
             document.getElementById('homePage').style.display = 'block';
             document.getElementById('drawPage').style.display = 'none';
-            
-            // Reset draw button for next user
-            const drawButton = document.querySelector('.draw-btn');
-            if (drawButton) {
-                drawButton.disabled = false;
-                drawButton.textContent = '🎲 DRAW NOW 🎲';
-                drawButton.style.opacity = '1';
-                drawButton.style.display = 'block';
-            }
-            
             currentLoginUser = null;
             renderParticipants();
         }
@@ -802,8 +855,13 @@
             }
         }, 1000);
 
+        // Start animation
         animate();
+        
+        // Load data when page loads
         loadData();
+        
+        console.log('Lucky Draw System loaded successfully!');
     </script>
 </body>
 </html>
