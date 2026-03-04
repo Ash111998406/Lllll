@@ -289,6 +289,12 @@
             width: 100%;
             max-width: 300px;
         }
+        
+        .draw-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            animation: none;
+        }
 
         @keyframes pulse {
             0%, 100% { transform: scale(1); }
@@ -623,42 +629,73 @@
 
         // Draw prize
         function drawPrize() {
+            // Disable the button to prevent multiple clicks
+            const drawButton = document.querySelector('.draw-btn');
+            drawButton.disabled = true;
+            drawButton.textContent = 'Drawing...';
+            drawButton.style.opacity = '0.6';
+            
             if (availablePrizes.length === 0) {
                 alert('All prizes have been drawn!');
+                drawButton.disabled = false;
+                drawButton.textContent = '🎲 DRAW NOW 🎲';
+                drawButton.style.opacity = '1';
                 return;
             }
 
-            const randomIndex = Math.floor(Math.random() * availablePrizes.length);
-            const wonPrize = availablePrizes[randomIndex];
-            availablePrizes.splice(randomIndex, 1);
-            
-            participants[currentLoginUser].prize = wonPrize;
-            saveData();
-            
-            const resultDiv = document.getElementById('resultDisplay');
-            resultDiv.innerHTML = `
-                <div class="result">🎊 Congratulations! 🎊<br>You won ₹${wonPrize}!</div>
-                <div class="countdown" id="countdown">Redirecting in 5 seconds...</div>
-            `;
-            
-            triggerFireworksBlast();
-            
-            let countdown = 5;
-            const countdownInterval = setInterval(() => {
-                countdown--;
-                document.getElementById('countdown').textContent = `Redirecting in ${countdown} seconds...`;
+            // Immediately draw and show the prize
+            setTimeout(() => {
+                const randomIndex = Math.floor(Math.random() * availablePrizes.length);
+                const wonPrize = availablePrizes[randomIndex];
+                availablePrizes.splice(randomIndex, 1);
                 
-                if (countdown === 0) {
-                    clearInterval(countdownInterval);
-                    backToHome();
-                }
-            }, 1000);
+                participants[currentLoginUser].prize = wonPrize;
+                saveData();
+                
+                // Show result immediately
+                const resultDiv = document.getElementById('resultDisplay');
+                resultDiv.innerHTML = `
+                    <div class="result">🎊 Congratulations! 🎊<br>You won ₹${wonPrize}!</div>
+                    <div class="countdown" id="countdown">Redirecting to home in 5 seconds...</div>
+                `;
+                
+                // Trigger fireworks blast
+                triggerFireworksBlast();
+                
+                // Hide the draw button
+                drawButton.style.display = 'none';
+                
+                // Start countdown
+                let countdown = 5;
+                const countdownInterval = setInterval(() => {
+                    countdown--;
+                    const countdownElement = document.getElementById('countdown');
+                    if (countdownElement) {
+                        countdownElement.textContent = `Redirecting to home in ${countdown} second${countdown !== 1 ? 's' : ''}...`;
+                    }
+                    
+                    if (countdown === 0) {
+                        clearInterval(countdownInterval);
+                        backToHome();
+                    }
+                }, 1000);
+            }, 300); // Small delay for visual feedback
         }
 
         // Back to home
         function backToHome() {
             document.getElementById('homePage').style.display = 'block';
             document.getElementById('drawPage').style.display = 'none';
+            
+            // Reset draw button for next user
+            const drawButton = document.querySelector('.draw-btn');
+            if (drawButton) {
+                drawButton.disabled = false;
+                drawButton.textContent = '🎲 DRAW NOW 🎲';
+                drawButton.style.opacity = '1';
+                drawButton.style.display = 'block';
+            }
+            
             currentLoginUser = null;
             renderParticipants();
         }
