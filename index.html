@@ -518,7 +518,7 @@
         <div class="draw-page">
             <h2>Welcome, <span id="currentUser"></span>!</h2>
             <div class="draw-btn-container">
-                <button class="draw-btn" onclick="drawPrize()">🎲 DRAW NOW 🎲</button>
+                <button class="draw-btn" id="drawButton" onclick="drawPrize()">🎲 DRAW NOW 🎲</button>
             </div>
             <div id="resultDisplay"></div>
         </div>
@@ -538,7 +538,22 @@
     </div>
 
     <script>
-        // Initialize fireworks first
+        // GLOBAL VARIABLES - Declare at the very top
+        let currentLoginUser = null;
+        const participants = [
+            { name: "Liza", password: "15264", prize: null },
+            { name: "Bablin", password: "12354", prize: null },
+            { name: "Yujina", password: "54364", prize: null },
+            { name: "Lewis", password: "53984", prize: null },
+            { name: "Belina", password: "65657", prize: null },
+            { name: "Reshmi", password: "23409", prize: null },
+            { name: "Gamaljit", password: "32461", prize: null },
+            { name: "Roselin", password: "87654", prize: null }
+        ];
+        const prizes = [170, 110, 70, 30, 30, 30, 30, 30];
+        let availablePrizes = [...prizes];
+
+        // Initialize fireworks
         const canvas = document.getElementById('fireworks-canvas');
         const ctx = canvas.getContext('2d');
         canvas.width = window.innerWidth;
@@ -627,22 +642,6 @@
             }
         }, 1000);
 
-        // Game data
-        const participants = [
-            { name: "Liza", password: "15264", prize: null },
-            { name: "Bablin", password: "12354", prize: null },
-            { name: "Yujina", password: "54364", prize: null },
-            { name: "Lewis", password: "53984", prize: null },
-            { name: "Belina", password: "65657", prize: null },
-            { name: "Reshmi", password: "23409", prize: null },
-            { name: "Gamaljit", password: "32461", prize: null },
-            { name: "Roselin", password: "87654", prize: null }
-        ];
-
-        const prizes = [170, 110, 70, 30, 30, 30, 30, 30];
-        let availablePrizes = [...prizes];
-        let currentLoginUser = null;
-
         // Load saved data
         function loadData() {
             try {
@@ -728,6 +727,12 @@
         // Submit login
         function submitLogin() {
             const password = document.getElementById('passwordInput').value;
+            
+            if (currentLoginUser === null || !participants[currentLoginUser]) {
+                document.getElementById('loginError').textContent = 'Error: Please try again';
+                return;
+            }
+            
             const participant = participants[currentLoginUser];
             
             if (password === participant.password) {
@@ -746,7 +751,7 @@
             document.getElementById('resultDisplay').innerHTML = '';
             
             // Reset button state
-            const drawButton = document.querySelector('.draw-btn');
+            const drawButton = document.getElementById('drawButton');
             if (drawButton) {
                 drawButton.disabled = false;
                 drawButton.textContent = '🎲 DRAW NOW 🎲';
@@ -754,9 +759,26 @@
             }
         }
 
-        // Draw prize - FIXED VERSION
+        // Draw prize - FIXED with proper null checks
         function drawPrize() {
-            const drawButton = document.querySelector('.draw-btn');
+            // Verify currentLoginUser is valid
+            if (currentLoginUser === null || currentLoginUser === undefined) {
+                alert('Error: Please log in again');
+                backToHome();
+                return;
+            }
+            
+            if (!participants[currentLoginUser]) {
+                alert('Error: Invalid user. Please log in again');
+                backToHome();
+                return;
+            }
+            
+            const drawButton = document.getElementById('drawButton');
+            if (!drawButton) {
+                alert('Error: Button not found');
+                return;
+            }
             
             // Disable button immediately
             drawButton.disabled = true;
